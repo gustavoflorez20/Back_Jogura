@@ -6,13 +6,14 @@ const port = 3001
 const cors = require("cors");
 
 
-const ProductsRouter = require('./Back_Product/Productroutes/ProductRouter');
+const ProductsRouter = require('./Back_Products/ProductsRouter/ProductsRouter');
 const UserRouter = require('./Back_User/UserRoutes/UserRouter');
 
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect('mongodb+srv://gutavo:Clio2018*@cluster0.f8klybc.mongodb.net/Product')
+mongoose.connect('mongodb+srv://gutavo:Clio2018%2A@cluster0.f8klybc.mongodb.net/Tequetapas')
+
   .then(() => console.log('Conectada BD de los Productos Jogura http://localhost:3001/Products'))
   .catch((error) => console.log('Hay un error:', error));
 
@@ -28,4 +29,4 @@ app.use('/User', UserRouter);
 
 app.listen(port, () => {
     console.log(`Server Funcionando en  ${port}`)
-})
+})   
