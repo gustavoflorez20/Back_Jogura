@@ -26,7 +26,8 @@ async function getProducts(req, res) {
 
     if (!Productss || Productss.length === 0) {
       return res.status(404).json({ error: 'No se encontraron Productos en BD' });
-    }
+      
+    } 
 
     return res.json(Productss);
   } catch (error) {
