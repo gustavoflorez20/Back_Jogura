@@ -77,9 +77,68 @@ const verifyToken = (req, res, next) => {
   }
 };
 
+async function getUser(req, res) {
+    try {
+      console.log('Mostrando lista de Usuarios');
+      const users = await UserModel.find();
+  
+      if (!users || users.length === 0) {
+        return res.status(404).json({ error: 'No se encontraron usuarios en BD' });
+      }
+  
+      return res.json(users);  
+    } catch (error) {
+      console.error('Error al obtener la lista de usuarios:', error.message);
+      return res.status(500).json({ error: 'Error interno del servidor' });
+    }
+  }
+  
+  
+
+  async function updateUser(req, res) {
+    try {
+      console.log('Actualizar Usuario:');
+      const idOfUserToUpdate = req.params.id;
+      const dataToUpdate = req.body;
+  
+      const updatedUser = await UserModel.findByIdAndUpdate(idOfUserToUpdate, dataToUpdate, { new: true });
+  
+      if (!updatedUser) {
+        return res.status(404).json({ error: `No se encontró el usuario con ID ${idOfUserToUpdate}` });
+      }
+  
+      return res.json({ text: `Usuario actualizado: ${idOfUserToUpdate}`, updatedUser });
+    } catch (error) {
+      console.error('Error al actualizar el usuario:', error.message);
+      return res.status(500).json({ error: 'Error interno del servidor' });
+    }
+  }
+  
+  async function deleteUser(req, res) {
+    try {
+      console.log('Eliminar Usuario');
+      const idOfUserToBeDeleted = req.params.id;
+  
+      const deletedUser = await UserModel.findByIdAndDelete(idOfUserToBeDeleted);
+  
+      if (!deletedUser) {
+        return res.status(404).json({ error: `No se encontró el usuario con ID ${idOfUserToBeDeleted}` });
+      }
+  
+      return res.json({ text: `Usuario borrado: ${idOfUserToBeDeleted}` });
+    } catch (error) {
+      console.error('Error al eliminar el usuario:', error.message);
+      return res.status(500).json({ error: 'Error interno del servidor' });
+    }
+  }
+  
+
 
 module.exports = {
   addUser,
   checkUser,
-  verifyToken
+  verifyToken,
+  getUser,
+  updateUser,
+  deleteUser
 }
