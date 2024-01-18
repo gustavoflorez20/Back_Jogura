@@ -4,11 +4,16 @@ async function addProducts(req, res) {
   try {
     console.log('Creando Producto:');
     const ProductsData = req.body;
-    if (!ProductsData.producto || !ProductsData.precio) {
+    if (!ProductsData.products || !ProductsData.precio) {
       return res.status(400).json({ error: 'El nombre del Producto y el precio son campos obligatorios' });
     }
 
-    const ProductsToBeAdded = new Products(ProductsData);
+    const ProductsToBeAdded = new Products({
+      producto: ProductsData.products,
+      precio: ProductsData.precio,
+      cantidad: ProductsData.cantidad,  
+    });
+
     await ProductsToBeAdded.save();
 
     console.log('Producto Creado:', ProductsToBeAdded);
@@ -18,6 +23,7 @@ async function addProducts(req, res) {
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 }
+
 
 async function getProducts(req, res) {
   try {

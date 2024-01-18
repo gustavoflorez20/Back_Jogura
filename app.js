@@ -6,14 +6,13 @@ const mongoose = require('mongoose');
 const app = express();
 const port = process.env.PORT || 3001;
 const cors = require('cors');
+app.use(cors());
+app.use(express.json());
 
 
 
 const ProductsRouter = require('./Back_Products/ProductsRouter/ProductsRouter');
 const UserRouter = require('./Back_User/UserRoutes/UserRouter');
-
-app.use(cors());
-app.use(express.json());
 
 mongoose.connect(process.env.MONGODB_URL_PROD)
 .then(() => console.log('Conectada BD de los Productos Jogura http://localhost:3001/Products'))
