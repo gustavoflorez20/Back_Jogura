@@ -23,8 +23,14 @@ userDBConnection.on('open', () => {
 console.log('Conectada BD de los Usuarios  Jogura http://localhost:3001/User');
 });
 
+const userDBDConnection = mongoose.createConnection(process.env.MONGODB_URL_Dairy);
+userDBDConnection.on('open', () => {
+  console.log('Conectada BD de Dairy Jogura http://localhost:3001/Dairy');
+});
+
 app.use('/Products', ProductsRouter);
 app.use('/User', UserRouter);
+app.use('/Congelados', UserRouter);
 
 
 
