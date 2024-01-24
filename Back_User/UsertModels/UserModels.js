@@ -10,7 +10,28 @@ const UserSchema = new Schema({
     type: String,
     required: true,
   },
+  Birthdate:{
+    type: String,
+    required: true,
+  },
+  email: {
+    type: String,
+    required: true,
+  },
   phone: {
+    type: String,
+    required: true,
+  },
+  country: {
+    type: String,
+    required: true,
+  },
+  PostalCode: {
+    type: String,
+    required: true,
+  },
+ 
+  province: {
     type: String,
     required: true,
   },
@@ -21,7 +42,7 @@ const UserSchema = new Schema({
   password: {
     type: String,
     required: true,
-  }
+  },
 },
 {timestamps:true}
 

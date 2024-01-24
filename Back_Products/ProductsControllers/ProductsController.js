@@ -9,9 +9,12 @@ async function addProducts(req, res) {
     }
 
     const ProductsToBeAdded = new Products({
-      producto: ProductsData.products,
-      precio: ProductsData.precio,
-      cantidad: ProductsData.cantidad,  
+      producto:ProductsData.products,
+      precio:ProductsData.precio,
+      cantidad:ProductsData.cantidad,
+      imagen:ProductsData.imagen
+
+
     });
 
     await ProductsToBeAdded.save();

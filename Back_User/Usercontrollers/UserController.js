@@ -14,7 +14,7 @@ const addUser = async (req, res) => {
   console.log('Creando usuario en la base de datos...');
   UserModel.create(
       {
-          email: req.body.email,
+          ...req.body,
           password: encryptedPassword,
       }
   ).then(userDoc => {

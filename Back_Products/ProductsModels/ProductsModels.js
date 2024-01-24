@@ -9,9 +9,8 @@ const ProductsSchema = new Schema({
   precio:{
     set: addEuroSymbol,
     type: String
-     
   },
-  descripcion:String
+  imagen:String
 
 });
 
