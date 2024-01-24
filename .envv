@@ -1,0 +1,4 @@
+MONGODB_URL_PROD=mongodb+srv://gutavo:Clio2018%2A@cluster0.f8klybc.mongodb.net/Tequetapas
+MONGODB_URL_USER=mongodb+srv://gutavo:Clio2018*@cluster0.f8klybc.mongodb.net/User
+MONGODB_URL_Dairy=mongodb+srv://gutavo:Clio2018*@cluster0.f8klybc.mongodb.net/Dairy
+PORT=3001
