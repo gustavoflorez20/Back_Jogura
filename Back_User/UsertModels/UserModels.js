@@ -10,32 +10,12 @@ const UserSchema = new Schema({
     type: String,
     required: true,
   },
-  Birthdate:{
-    type: String,
-    required: true,
-  },
+
   email: {
     type: String,
     required: true,
   },
   phone: {
-    type: String,
-    required: true,
-  },
-  country: {
-    type: String,
-    required: true,
-  },
-  PostalCode: {
-    type: String,
-    required: true,
-  },
- 
-  province: {
-    type: String,
-    required: true,
-  },
-  address: {
     type: String,
     required: true,
   },
