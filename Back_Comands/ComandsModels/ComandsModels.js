@@ -3,7 +3,7 @@ const { Schema } = mongoose;
 const addEuroSymbol = (value) => `${value} €`;
 
 
-const ProductsSchema = new Schema({
+const ComandsSchema = new Schema({
   producto: String,
   cantidad: Number,
   precio:{
@@ -14,6 +14,6 @@ const ProductsSchema = new Schema({
 
 });
 
-const Products = mongoose.model('Products', ProductsSchema);
+const Comands = mongoose.model('Comands', ComandsSchema);
 
-module.exports = Products 
+module.exports = Comands 

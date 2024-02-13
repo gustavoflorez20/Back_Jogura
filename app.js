@@ -13,24 +13,33 @@ app.use(express.json());
 
 const ProductsRouter = require('./Back_Products/ProductsRouter/ProductsRouter');
 const UserRouter = require('./Back_User/UserRoutes/UserRouter');
+const DairyRouter = require('./Back_Dairy/DairyRouter/DairyRouter');
+const ComandsRouter = require('./Back_Comands/ComandsRouter/ComandsRouter');
+
 
 mongoose.connect(process.env.MONGODB_URL_PROD)
-.then(() => console.log('Conectada BD de los Productos Jogura http://localhost:3001/Products'))
+.then(() => console.log('Conectada BD  Productos Jogura http://localhost:3001/Products'))
 .catch((error) => console.error('Hay un error:', error));
 
 const userDBConnection = mongoose.createConnection(process.env.MONGODB_URL_USER);
 userDBConnection.on('open', () => {
-console.log('Conectada BD de los Usuarios  Jogura http://localhost:3001/User');
+console.log('Conectada BD de  Usuarios  Jogura http://localhost:3001/User');
 });
 
-const userDBDConnection = mongoose.createConnection(process.env.MONGODB_URL_Dairy);
-userDBDConnection.on('open', () => {
-  console.log('Conectada BD de Dairy Jogura http://localhost:3001/Dairy');
+const DairyDBDConnection = mongoose.createConnection(process.env.MONGODB_URL_Dairy);
+DairyDBDConnection.on('open', () => {
+  console.log('Conectada BD de Lacteos Jogura http://localhost:3001/Dairy');
 });
 
+
+const ComandsDBDConnection = mongoose.createConnection(process.env.MONGODB_URL_Comands);
+ComandsDBDConnection.on('open', () => {
+  console.log('Conectada BD de Comandas Jogura http://localhost:3001/Comands');
+});
 app.use('/Products', ProductsRouter);
 app.use('/User', UserRouter);
-app.use('/Congelados', UserRouter);
+app.use('/Congelados', DairyRouter);
+app.use('/Comandas', ComandsRouter);
 
 
 
