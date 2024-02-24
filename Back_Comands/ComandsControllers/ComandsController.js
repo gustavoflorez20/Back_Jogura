@@ -7,7 +7,7 @@ async function addComands(req, res) {
     console.log('Creando Comands:');
     const ComandsData = req.body;
     if (!ComandsData.Comands || !ComandsData.precio) {
-      return res.status(400).json({ error: 'El nombre del Comanda y el precio son campos obligatorios' });
+      return res.status(400).json({ error: '' });
     }
 
     const ComandsToBeAdded = new Comands({
@@ -91,7 +91,7 @@ async function sendEmailComands(req, res) {
 
   const emailOptions = {
     from: 'Tequetapas <tequetapas@resend.dev>',
-    to: [email], 
+    to: [], 
     subject: 'Comanda',
     html: '<strong>Pedido</strong>',
   };

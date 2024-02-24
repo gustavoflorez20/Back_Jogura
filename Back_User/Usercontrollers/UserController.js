@@ -32,6 +32,13 @@ const addUser = async (req, res) => {
 };
 
    
+const setTokenInLocalStorage = (token) => {
+  localStorage.setItem('miToken', token);
+};
+
+const getTokenFromLocalStorage = () => {
+  return localStorage.getItem('miToken');
+};
 
  
 const checkUser = async (req, res) => {
@@ -51,6 +58,7 @@ const checkUser = async (req, res) => {
   if (isPasswordMatch) {
       console.log('Contraseña válida. Generando token...');
       const token = jwt.sign({ email: userFound.email }, mySecret, { expiresIn: 60 });
+      setTokenInlocalStorage (token);
 
       console.log('Token generado. Usuario autenticado.');
       return res.status(200).json({ msg: 'Hola, estás logueado', token });
@@ -70,7 +78,10 @@ const verifyToken = (req, res, next) => {
   try {
       console.log('Verificando token...');
       jwt.verify(token, mySecret);
+
+
       console.log('Token válido. Continuando con la siguiente función...');
+
       return next();
   } catch (error) {
       console.log('Token no válido o expirado.');

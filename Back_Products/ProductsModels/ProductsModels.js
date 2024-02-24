@@ -4,13 +4,12 @@ const addEuroSymbol = (value) => `${value} €`;
 
 
 const ProductsSchema = new Schema({
-  producto: String,
-  cantidad: Number,
-  precio:{
-    set: addEuroSymbol,
-    type: String
-  },
-  imagen:String
+  cantidad: String,
+  id: Number,
+  image: String,
+  name: String,
+  precio:Number,
+ shortDescription: String
 
 });
 

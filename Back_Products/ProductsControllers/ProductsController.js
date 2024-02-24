@@ -1,60 +1,69 @@
 const Products = require('../ProductsModels/ProductsModels');
+const { Resend } = require('resend');
+const resend = new Resend();
 
 async function addProducts(req, res) {
+  let createdProducts;
+
   try {
-    console.log('Creando Producto:');
-    const ProductsData = req.body;
-    if (!ProductsData.products || !ProductsData.precio) {
-      return res.status(400).json({ error: 'El nombre del Producto y el precio son campos obligatorios' });
-    }
+    console.log('Creando Pedido:');
+    const carData = req.body.car;
 
-    const ProductsToBeAdded = new Products({
-      producto:ProductsData.products,
-      precio:ProductsData.precio,
-      cantidad:ProductsData.cantidad,
-      imagen:ProductsData.imagen
-
-
+    const productsToBeAdded = carData.map((productData) => {
+      return new Products({
+        cantidad: productData.cantidad,
+        id: productData.id,
+        name: productData.name,
+        precio: productData.price,
+        shortDescription: productData.shortDescription,
+        Image: productData.image,
+      });
     });
 
-    await ProductsToBeAdded.save();
+    createdProducts = await Products.insertMany(productsToBeAdded);
 
-    console.log('Producto Creado:', ProductsToBeAdded);
-    res.json({ Mensaje: 'Producto creado correctamente', createdProducts: ProductsToBeAdded });
+    console.log('Pedido Creado:', createdProducts);
+
+    await sendEmailProductos(req, res);
+
+    
+    return;
+
   } catch (error) {
-    console.error('Error al crear el Producto:', error.message);
-    res.status(500).json({ error: 'Error interno del servidor' });
+    console.error('Error al crear los Productos:', error.message);
+    return res.status(500).json({ error: 'Error interno del servidor' });
   }
-}
 
+  
+  res.json({ Mensaje: 'Productos creados correctamente', createdProducts });
+}
 
 async function getProducts(req, res) {
   try {
-    console.log('Mostrando lista de Productos');
+    console.log('Mostrando lista de Pedidos');
     const Productss = await Products.find();
 
     if (!Productss || Productss.length === 0) {
-      return res.status(404).json({ error: 'No se encontraron Productos en BD' });
-      
+      return res.status(404).json({ error: 'No se encontraron Pedidos en BD' });
     } 
 
     return res.json(Productss);
   } catch (error) {
-    console.error('Error al obtener la lista de Productos:', error.message);
+    console.error('Error al obtener la lista de Pedidos:', error.message);
     return res.status(500).json({ error: 'Error interno del servidor' });
   }
 }
 
 async function updateProducts(req, res) {
   try {
-    console.log('Actualizar Producto:');
+    console.log('Actualizar Pedido:');
     const idOfProductsToUpdate = req.params.id;
     const dataToUpdate = req.body;
 
     const updatedProducts = await Products.findByIdAndUpdate(idOfProductsToUpdate, dataToUpdate, { new: true });
 
     if (!updatedProducts) {
-      return res.status(404).json({ error: `No se encontró el Producto con ID ${idOfProductsToUpdate}` });
+      return res.status(404).json({ error: `No se encontró el Pedido con ID ${idOfProductsToUpdate}` });
     }
 
     return res.json({ Mensaje: `Producto actualizado: ${idOfProductsToUpdate}`, updatedProducts });
@@ -82,9 +91,36 @@ async function deleteProducts(req, res) {
   }
 }
 
+async function sendEmailProductos(req, res) {
+  try {
+    const productData = req.body.productData;
+
+    const emailOptions = {
+      from: 'Tequetapas <tequetapas@resend.dev>',
+      to: ['gustavoflorez20@gmail.com'],
+      subject: 'Comanda',
+      html: '<strong>Recomanda</strong>',
+    };
+
+    const { data, error } = await resend.emails.send(emailOptions);
+
+    if (error) {
+      console.error({ error });
+      res.status(500).json({ error: 'Error al enviar el correo electrónico' });
+    } else {
+      console.log(`Pedido enviado exitosamente`);
+      res.status(200).json({ message: 'Pedido enviado exitosamente al Email.' });
+    }
+  } catch (error) {
+    console.error('Error al enviar el correo electrónico:', error.message);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+}
+
 module.exports = {
   addProducts,
   getProducts,
   updateProducts,
-  deleteProducts
+  deleteProducts,
+  sendEmailProductos
 };
