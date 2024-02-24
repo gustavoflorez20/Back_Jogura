@@ -4,7 +4,7 @@ const addEuroSymbol = (value) => `${value} €`;
 
 
 const ComandsSchema = new Schema({
-  producto: String,
+  Comanda: String,
   cantidad: Number,
   precio:{
     set: addEuroSymbol,

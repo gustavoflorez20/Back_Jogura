@@ -4,11 +4,12 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const mySalt=10;
 const mySecret = 'BANANASECRETO'
+const { Resend } = require('resend');
 
 const addUser = async (req, res) => {
   console.log('Iniciando proceso de registro de usuario...');
 
-  // encriptamos la password
+
   const encryptedPassword = await bcrypt.hash(req.body.password, mySalt);
 
   console.log('Creando usuario en la base de datos...');
@@ -131,14 +132,71 @@ async function getUser(req, res) {
       return res.status(500).json({ error: 'Error interno del servidor' });
     }
   }
+
+  const checkUserExists = async (email) => {
+    try {
+      const existingUser = await UserModel.findOne({ email });
   
-
-
+      if (existingUser) {
+        console.log(`Usuario encontrado: ${email}`);
+        return true;
+      } else {
+        console.log(`Usuario no encontrado: ${email}`);
+        return false;
+      }
+    } catch (error) {
+      console.error('Error al verificar la existencia del usuario:', error.message);
+      return false; 
+    }
+  };
+  
+  const resend = new Resend();
+  
+  async function sendEmailUser(req, res) {
+    const { email } = req.body;
+  
+    console.log(`Verificando si el usuario ${email} existe...`);
+    const userExists = await checkUserExists(email);
+  
+    if (userExists) {
+      console.log(`Usuario ${email} encontrado. Enviando correo electrónico...`);
+  
+      const emailOptions = {
+        from: 'Tequetapas <tequetapas@resend.dev>',
+        to: [email],
+        subject: 'gmail',
+        html: '<strong>Restablecer contraseña</strong>',
+      };
+  
+      try {
+        const { data, error } = await resend.emails.send(emailOptions);
+        if (error) {
+          console.error({ error });
+          res.status(500).json({ error: 'Error al enviar el correo electrónico' });
+        } else {
+          console.log(`Correo electrónico enviado exitosamente a: ${email}`);
+          res.status(200).json({ message: 'Correo electrónico enviado exitosamente.' });
+        }
+      } catch (error) {
+        console.error('Error al enviar el correo electrónico:', error.message);
+        res.status(500).json({ error: 'Error interno del servidor' });
+      }
+    } else {
+      console.log(`Usuario ${email} no encontrado.`);
+      res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+  };
+  
+  
+  
+ 
 module.exports = {
   addUser,
   checkUser,
   verifyToken,
   getUser,
   updateUser,
-  deleteUser
+  deleteUser,
+  sendEmailUser
+  
 }
