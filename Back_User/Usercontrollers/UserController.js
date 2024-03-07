@@ -74,7 +74,7 @@ const checkUser = async (req, res) => {
 
   if (isPasswordMatch) {
       console.log('Contraseña válida. Generando token...');
-      const token = jwt.sign({ email: userFound.email }, mySecret, { expiresIn: 60 });
+      const token = jwt.sign({ email: userFound.email }, mySecret, { expiresIn: 120 });
       setTokenInServer(token);
 
       console.log('Token . Usuario autenticado.');
@@ -86,7 +86,7 @@ const checkUser = async (req, res) => {
 };
 
 const verifyToken = (req, res, next) => {
-  const token = req.headers.authorization.split(' ');
+  const token = req.headers.authorization.split(' ')[1];
   console.log('tokennnnnn', token)
   if (!token) {
       console.log('Token faltante.');
