@@ -87,7 +87,7 @@ const checkUser = async (req, res) => {
 
 const verifyToken = (req, res, next) => {
   const token = req.headers.authorization.split(' ')[1];
-  console.log('tokennnnnn', token)
+  console.log('token',)
   if (!token) {
       console.log('Token faltante.');
       return res.status(404).json({ msg: 'Falta token!!!!' });
@@ -166,7 +166,7 @@ async function getUser(req, res) {
   
   const resend = new Resend();
 
-async function sendEmailUser(req, res) {
+async function EmailUser(req, res) {
   
   if (serverToken) {
     console.log('Token encontrado. Enviando correo electrónico...');
@@ -197,7 +197,31 @@ async function sendEmailUser(req, res) {
   }
 }
   
-  
+async function sendEmailUser(req, res) {
+  console.log('Enviando correo electrónico...');
+
+  const emailOptions = {
+    from: 'Tequetapas <tequetapas@resend.dev>',
+    to: ['gustavoflorez20@gmail.com'], //email,
+    subject: 'gmail',
+    html: '<strong>Usuario Registrado</strong>',
+  };
+
+  try {
+    const { data, error } = await resend.emails.send(emailOptions);
+    if (error) {
+      console.error({ error });
+      res.status(500).json({ error: 'Error al enviar el correo electrónico' });
+    } else {
+      console.log('Correo electrónico enviado exitosamente.');
+      res.status(200).json({ message: 'Correo electrónico enviado exitosamente.' });
+    }
+  } catch (error) {
+    console.error('Error al enviar el correo electrónico:', error.message);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+}
+
   
  
 module.exports = {
@@ -207,6 +231,7 @@ module.exports = {
   getUser,
   updateUser,
   deleteUser,
+  EmailUser,
   sendEmailUser
   
 }
