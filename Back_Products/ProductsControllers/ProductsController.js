@@ -24,9 +24,9 @@ async function addProducts(req, res) {
 
     console.log('Pedido Creado:', createdProducts);
 
-    await sendEmailProductos(req, res);
+    await sendEmailProductos(req, res, createdProducts);
 
-    
+    // Si sendEmailProductos envió una respuesta, salimos temprano para evitar problemas.
     return;
 
   } catch (error) {
@@ -34,7 +34,7 @@ async function addProducts(req, res) {
     return res.status(500).json({ error: 'Error interno del servidor' });
   }
 
-  
+  // Solo si sendEmailProductos no envió una respuesta, enviamos la respuesta aquí.
   res.json({ Mensaje: 'Productos creados correctamente', createdProducts });
 }
 
@@ -91,15 +91,25 @@ async function deleteProducts(req, res) {
   }
 }
 
-async function sendEmailProductos(req, res) {
+async function sendEmailProductos(req, res, createdProducts) {
   try {
-    const productData = req.body.productData;
-
     const emailOptions = {
       from: 'Tequetapas <tequetapas@resend.dev>',
       to: ['gustavoflorez20@gmail.com'],
-      subject: 'Comanda',
-      html: '<strong>Recomanda</strong>',
+      subject: 'Nuevo Pedido',
+      html: `
+        <strong>Nuevo Pedido</strong>
+        <p>Detalles del pedido:</p>
+        ${createdProducts.map((product) => `
+        <p>id: ${product._id}</p>
+          <p>Producto: ${product.name}</p>
+          <p>Cantidad: ${product.cantidad}</p>
+          <p>Precio: ${product.precio}</p>
+          <p>Descripción: ${product.shortDescription}</p>
+          
+          <br />
+        `).join('')}
+      `,
     };
 
     const { data, error } = await resend.emails.send(emailOptions);
@@ -109,7 +119,7 @@ async function sendEmailProductos(req, res) {
       res.status(500).json({ error: 'Error al enviar el correo electrónico' });
     } else {
       console.log(`Pedido enviado exitosamente`);
-      res.status(200).json({ message: 'Pedido enviado exitosamente al Email.' });
+      res.status(200).json({ message: 'Pedido enviado exitosamente .' });
     }
   } catch (error) {
     console.error('Error al enviar el correo electrónico:', error.message);

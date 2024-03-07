@@ -4,7 +4,7 @@ var router = express.Router()
 
 const { addProducts, getProducts,  deleteProducts, updateProducts,sendEmailProductos } = require('../ProductsControllers/ProductsController')
 
-router.post('/' ,addProducts);
+router.post('/' ,verifyToken,addProducts);
 
 router.get('/:id?', verifyToken, getProducts);
 

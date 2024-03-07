@@ -86,14 +86,23 @@ async function deleteComands(req, res) {
 
  
 const resend = new Resend();
+
 async function sendEmailComands(req, res) {
-  const { email } = req.body; 
+  const { email } = req.body;
+  const ComandsData = req.body;
 
   const emailOptions = {
     from: 'Tequetapas <tequetapas@resend.dev>',
-    to: [], 
+    to: ['gustavoflorez20@gmail.com'] , //email,
     subject: 'Comanda',
-    html: '<strong>Pedido</strong>',
+    html: `
+      <strong>Pedido</strong>
+      <p>Detalles del pedido:</p>
+      <p>Comanda: ${ComandsData.Comands}</p>
+      <p>Precio: ${ComandsData.precio}</p>
+      <p>Cantidad: ${ComandsData.cantidad}</p>
+      <p>Imagen: <img src="${ComandsData.imagen}" alt="Imagen del producto" /></p>
+    `,
   };
 
   try {

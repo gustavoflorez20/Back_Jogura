@@ -31,14 +31,17 @@ const addUser = async (req, res) => {
   });
 };
 
-   
-const setTokenInLocalStorage = (token) => {
-  localStorage.setItem('miToken', token);
+let serverToken = '';
+
+const setTokenInServer = (token) => {
+  serverToken = token;
 };
 
-const getTokenFromLocalStorage = () => {
-  return localStorage.getItem('miToken');
+const getTokenFromServer = () => {
+  return serverToken;
 };
+
+
 
  
 const checkUser = async (req, res) => {
@@ -58,7 +61,7 @@ const checkUser = async (req, res) => {
   if (isPasswordMatch) {
       console.log('Contraseña válida. Generando token...');
       const token = jwt.sign({ email: userFound.email }, mySecret, { expiresIn: 60 });
-      setTokenInlocalStorage (token);
+      setTokenInServer(token);
 
       console.log('Token generado. Usuario autenticado.');
       return res.status(200).json({ msg: 'Hola, estás logueado', token });
@@ -69,7 +72,8 @@ const checkUser = async (req, res) => {
 };
 
 const verifyToken = (req, res, next) => {
-  const token = req.headers.authorization;
+  const token = req.headers.authorization.split(' ');
+  console.log('tokennnnnn', token)
   if (!token) {
       console.log('Token faltante.');
       return res.status(404).json({ msg: 'Falta token!!!!' });
@@ -174,9 +178,9 @@ async function getUser(req, res) {
   
       const emailOptions = {
         from: 'Tequetapas <tequetapas@resend.dev>',
-        to: [email],
+        to: ['gustavoflorez20@gmail.com'] , //email,
         subject: 'gmail',
-        html: '<strong>Restablecer contraseña</strong>',
+        html: '<strong>Usuario Registrado</strong>',
       };
   
       try {
