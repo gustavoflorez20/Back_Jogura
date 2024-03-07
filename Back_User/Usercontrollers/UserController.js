@@ -1,4 +1,3 @@
-
 const UserModel = require('../UsertModels/UserModels');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -7,38 +6,53 @@ const mySecret = 'BANANASECRETO'
 const { Resend } = require('resend');
 
 const addUser = async (req, res) => {
-  console.log('Iniciando proceso de registro de usuario...');
+  try {
+    console.log('Iniciando proceso de registro de usuario...');
 
+    // Verificar si el usuario ya existe
+    const existingUser = await UserModel.findOne({ email: req.body.email });
 
-  const encryptedPassword = await bcrypt.hash(req.body.password, mySalt);
+    if (existingUser) {
+      console.log('Usuario ya existe.');
+      return res.status(409).json({ msg: 'Usuario ya existe' });
+    }
 
-  console.log('Creando usuario en la base de datos...');
-  UserModel.create(
-      {
-          ...req.body,
-          password: encryptedPassword,
-      }
-  ).then(userDoc => {
-      console.log('Usuario creado exitosamente:', userDoc);
-      res.status(200).send(userDoc);
-  }).catch(error => {
-      console.log('Error durante la creación del usuario:', error.code);
+    const encryptedPassword = await bcrypt.hash(req.body.password, mySalt);
 
-      switch (error.code) {
+    console.log('Creando usuario en la base de datos...');
+    UserModel.create({
+      ...req.body,
+      password: encryptedPassword,
+    })
+      .then((userDoc) => {
+        console.log('Usuario creado exitosamente:', userDoc);
+
+        const token = jwt.sign({ email: userDoc.email }, mySecret, { expiresIn: 60 });
+        setTokenInServer(token);
+        console.log('Token generado');
+
+        res.status(200).json({ user: userDoc, token });
+      })
+      .catch((error) => {
+        console.log('Error durante la creación del usuario:', error.code);
+
+        switch (error.code) {
           default:
-              res.status(400).send(error);
-      }
-  });
+            res.status(400).json(error);
+        }
+      });
+  } catch (error) {
+    console.error('Error general durante la creación del usuario:', error.message);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
 };
+
+
 
 let serverToken = '';
 
 const setTokenInServer = (token) => {
   serverToken = token;
-};
-
-const getTokenFromServer = () => {
-  return serverToken;
 };
 
 
@@ -63,7 +77,7 @@ const checkUser = async (req, res) => {
       const token = jwt.sign({ email: userFound.email }, mySecret, { expiresIn: 60 });
       setTokenInServer(token);
 
-      console.log('Token generado. Usuario autenticado.');
+      console.log('Token . Usuario autenticado.');
       return res.status(200).json({ msg: 'Hola, estás logueado', token });
   }
 
@@ -148,59 +162,40 @@ async function getUser(req, res) {
     }
   }
 
-  const checkUserExists = async (email) => {
-    try {
-      const existingUser = await UserModel.findOne({ email });
   
-      if (existingUser) {
-        console.log(`Usuario encontrado: ${email}`);
-        return true;
-      } else {
-        console.log(`Usuario no encontrado: ${email}`);
-        return false;
-      }
-    } catch (error) {
-      console.error('Error al verificar la existencia del usuario:', error.message);
-      return false; 
-    }
-  };
   
   const resend = new Resend();
+
+async function sendEmailUser(req, res) {
   
-  async function sendEmailUser(req, res) {
-    const { email } = req.body;
-  
-    console.log(`Verificando si el usuario ${email} existe...`);
-    const userExists = await checkUserExists(email);
-  
-    if (userExists) {
-      console.log(`Usuario ${email} encontrado. Enviando correo electrónico...`);
-  
-      const emailOptions = {
-        from: 'Tequetapas <tequetapas@resend.dev>',
-        to: ['gustavoflorez20@gmail.com'] , //email,
-        subject: 'gmail',
-        html: '<strong>Usuario Registrado</strong>',
-      };
-  
-      try {
-        const { data, error } = await resend.emails.send(emailOptions);
-        if (error) {
-          console.error({ error });
-          res.status(500).json({ error: 'Error al enviar el correo electrónico' });
-        } else {
-          console.log(`Correo electrónico enviado exitosamente a: ${email}`);
-          res.status(200).json({ message: 'Correo electrónico enviado exitosamente.' });
-        }
-      } catch (error) {
-        console.error('Error al enviar el correo electrónico:', error.message);
-        res.status(500).json({ error: 'Error interno del servidor' });
+  if (serverToken) {
+    console.log('Token encontrado. Enviando correo electrónico...');
+
+    const emailOptions = {
+      from: 'Tequetapas <tequetapas@resend.dev>',
+      to: ['gustavoflorez20@gmail.com'], //email,
+      subject: 'gmail',
+      html: '<strong>Usuario Registrado</strong>',
+    };
+
+    try {
+      const { data, error } = await resend.emails.send(emailOptions);
+      if (error) {
+        console.error({ error });
+        res.status(500).json({ error: 'Error al enviar el correo electrónico' });
+      } else {
+        console.log('Correo electrónico enviado exitosamente.');
+        res.status(200).json({ message: 'Correo electrónico enviado exitosamente.' });
       }
-    } else {
-      console.log(`Usuario ${email} no encontrado.`);
-      res.status(404).json({ error: 'Usuario no encontrado' });
+    } catch (error) {
+      console.error('Error al enviar el correo electrónico:', error.message);
+      res.status(500).json({ error: 'Error interno del servidor' });
     }
-  };
+  } else {
+    console.log('Token no encontrado. No se enviará el correo electrónico.');
+    res.status(404).json({ error: 'Token no encontrado. No se enviará el correo electrónico.' });
+  }
+}
   
   
   
