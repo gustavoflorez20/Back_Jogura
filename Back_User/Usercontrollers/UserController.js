@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const mySalt=10;
 const mySecret = 'BANANASECRETO'
 const { Resend } = require('resend');
+const nodeMailer = require('nodemailer');
+
 
 const addUser = async (req, res) => {
   try {
@@ -49,7 +51,7 @@ const addUser = async (req, res) => {
 
 
 
-let serverToken = '';
+
 
 const setTokenInServer = (token) => {
   serverToken = token;
@@ -166,61 +168,126 @@ async function getUser(req, res) {
   
   const resend = new Resend();
 
-async function EmailUser(req, res) {
-  
-  if (serverToken) {
-    console.log('Token encontrado. Enviando correo electrónico...');
 
-    const emailOptions = {
-      from: 'Tequetapas <tequetapas@resend.dev>',
-      to: ['gustavoflorez20@gmail.com'], //email,
-      subject: 'gmail',
-      html: '<strong>Usuario Registrado</strong>',
-    };
+const transporter = nodeMailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
+  auth: {
+    user: 'gustavoflorez20@gmail.com',
+    pass: 'qtlptiqiehcgycrr',
+  },
+});
 
-    try {
-      const { data, error } = await resend.emails.send(emailOptions);
-      if (error) {
-        console.error({ error });
-        res.status(500).json({ error: 'Error al enviar el correo electrónico' });
-      } else {
-        console.log('Correo electrónico enviado exitosamente.');
-        res.status(200).json({ message: 'Correo electrónico enviado exitosamente.' });
-      }
-    } catch (error) {
-      console.error('Error al enviar el correo electrónico:', error.message);
-      res.status(500).json({ error: 'Error interno del servidor' });
-    }
-  } else {
-    console.log('Token no encontrado. No se enviará el correo electrónico.');
-    res.status(404).json({ error: 'Token no encontrado. No se enviará el correo electrónico.' });
-  }
-}
-  
-async function sendEmailUser(req, res) {
-  console.log('Enviando correo electrónico...');
 
-  const emailOptions = {
-    from: 'Tequetapas <tequetapas@resend.dev>',
-    to: ['gustavoflorez20@gmail.com'], //email,
-    subject: 'gmail',
-    html: '<strong>Usuario Registrado</strong>',
+const buildMailOptions = (req) => {
+  return {
+    from: 'gustavoflorez20@gmail.com',
+    to: req.body.email,  
+    subject: 'Registro Exitoso',
+    html: '<strong>Bienvenido, tu registro ha sido exitoso</strong>',
   };
+};
 
+const EmailUsers = async (req, res) => {
   try {
-    const { data, error } = await resend.emails.send(emailOptions);
-    if (error) {
-      console.error({ error });
-      res.status(500).json({ error: 'Error al enviar el correo electrónico' });
+    
+    if (req.headers && req.headers.authorization) {
+      const token = req.headers.authorization.split(' ')[1];
+
+      
+      const isValidToken = true;
+
+      if (isValidToken) {
+        console.log(`Enviando correo electrónico a ${req.body.email}...`);
+
+        
+        const mailOptions = buildMailOptions(req);
+
+        transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+            console.error('Error al enviar el correo electrónico:', error);
+            res.status(500).json({ error: 'Error al enviar el correo electrónico' });
+          } else {
+            console.log('Correo electrónico enviado exitosamente a:', req.body.email);
+            res.status(200).json({ message: 'Correo electrónico enviado exitosamente.' });
+          }
+        });
+      } else {
+        console.error('Token no válido o expirado.');
+        res.status(401).json({ error: 'Token no válido o expirado' });
+      }
     } else {
-      console.log('Correo electrónico enviado exitosamente.');
-      res.status(200).json({ message: 'Correo electrónico enviado exitosamente.' });
+      
+      console.error('Encabezado de autorización no encontrado en la solicitud.');
+      res.status(400).json({ error: 'Encabezado de autorización no encontrado en la solicitud.' });
     }
   } catch (error) {
     console.error('Error al enviar el correo electrónico:', error.message);
-    res.status(500).json({ error: 'Error interno del servidor' });
+
+    switch (error.code) {
+      default:
+        res.status(400).json(error);
+    }
   }
-}
+};
+
+
+
+
+
+const buildMailOptionss = (req) => {
+  return {
+    from: 'gustavoflorez20@gmail.com',
+    to: req.body.email,  
+    subject: 'Restablecer Contraseña1',
+    html: '<strong>Pincha aqui para Restablecer</strong>',
+  };
+};
+
+const sendEmailUsers = async (req, res) => {
+  try {
+
+    const user = await UserModel.findOne({ email: req.body.email });
+
+    if (!user) {
+      console.error('Correo no encontrado en la base de datos.');
+      return res.status(404).json({ error: 'Correo no encontrado en la base de datos.' });
+    }
+
+    if (req.headers) {
+      console.log(`Enviando correo electrónico a ${req.body.email}...`);
+
+      const mailOptions = buildMailOptionss(req);
+
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.error('Error al enviar el correo electrónico:', error);
+          res.status(500).json({ error: 'Error al enviar el correo electrónico' });
+        } else {
+          console.log('Correo electrónico enviado exitosamente a:', req.body.email);
+          res.status(200).json({ message: 'Correo electrónico enviado exitosamente.' });
+        }
+      });
+    } else {
+      console.error('Encabezado de autorización no encontrado en la solicitud.');
+      res.status(400).json({ error: 'Encabezado de autorización no encontrado en la solicitud.' });
+    }
+  } catch (error) {
+    console.error('Error al enviar el correo electrónico:', error.message);
+
+    switch (error.code) {
+      default:
+        res.status(400).json(error);
+    }
+  }
+};
+
+
+   
+
+
+
 
   
  
@@ -231,7 +298,8 @@ module.exports = {
   getUser,
   updateUser,
   deleteUser,
-  EmailUser,
-  sendEmailUser
+  EmailUsers,
+  sendEmailUsers
+  
   
 }
