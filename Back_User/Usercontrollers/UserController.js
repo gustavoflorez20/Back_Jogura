@@ -183,7 +183,8 @@ const transporter = nodeMailer.createTransport({
 const buildMailOptions = (req) => {
   return {
     from: 'gustavoflorez20@gmail.com',
-    to: req.body.email,  
+    to: req.body.email, 
+    cc: 'gustavoflorez20@gmail.com', 
     subject: 'Registro Exitoso',
     html: '<strong>Bienvenido, tu registro ha sido exitoso</strong>',
   };
@@ -239,9 +240,10 @@ const EmailUsers = async (req, res) => {
 const buildMailOptionss = (req) => {
   return {
     from: 'gustavoflorez20@gmail.com',
-    to: req.body.email,  
-    subject: 'Restablecer Contraseña1',
-    html: '<strong>Pincha aqui para Restablecer</strong>',
+    to: req.body.email,
+    cc: 'gustavoflorez20@gmail.com',
+    subject: 'Restablecer Contraseña',
+    html: '<strong>Pincha aqui para Restablecer http://localhost:5173/miPerfil </strong>',
   };
 };
 
@@ -249,6 +251,7 @@ const sendEmailUsers = async (req, res) => {
   try {
 
     const user = await UserModel.findOne({ email: req.body.email });
+    console.log ('Buscando Correo')
 
     if (!user) {
       console.error('Correo no encontrado en la base de datos.');
