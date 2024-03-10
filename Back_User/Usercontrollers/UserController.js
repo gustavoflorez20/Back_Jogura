@@ -11,7 +11,6 @@ const addUser = async (req, res) => {
   try {
     console.log('Iniciando proceso de registro de usuario...');
 
-    // Verificar si el usuario ya existe
     const existingUser = await UserModel.findOne({ email: req.body.email });
 
     if (existingUser) {
@@ -31,7 +30,7 @@ const addUser = async (req, res) => {
 
         const token = jwt.sign({ email: userDoc.email }, mySecret, { expiresIn: 60 });
         setTokenInServer(token);
-        console.log('Token generado');
+        console.log('Token generado envio Correo');
 
         res.status(200).json({ user: userDoc, token });
       })
@@ -100,7 +99,7 @@ const verifyToken = (req, res, next) => {
       jwt.verify(token, mySecret);
 
 
-      console.log('Token válido. Continuando con la siguiente función...');
+      console.log('Token válido.');
 
       return next();
   } catch (error) {
@@ -200,12 +199,13 @@ const EmailUsers = async (req, res) => {
       const isValidToken = true;
 
       if (isValidToken) {
-        console.log(`Enviando correo electrónico a ${req.body.email}...`);
+        
 
         
         const mailOptions = buildMailOptions(req);
-
+        
         transporter.sendMail(mailOptions, (error, info) => {
+          
           if (error) {
             console.error('Error al enviar el correo electrónico:', error);
             res.status(500).json({ error: 'Error al enviar el correo electrónico' });
