@@ -243,7 +243,7 @@ const buildMailOptionss = (req) => {
     to: req.body.email,
     cc: 'gustavoflorez20@gmail.com',
     subject: 'Restablecer Contraseña',
-    html: '<strong>Pincha aqui para Restablecer http://localhost:5173/miPerfil </strong>',
+    html: '<strong>Pincha aqui para Restablecer https://tequetapas-es.onrender.com/miPerfil </strong>',
   };
 };
 
